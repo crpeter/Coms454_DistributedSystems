@@ -1,0 +1,28 @@
+TCP SOCKET - REMOTE FILE SERVER
+Cody Peter
+
+--------------------------------------------------------------
+Summary: ReadTest runs timed read comparisons and FileSystemTest continually asks for user input to utilize the fileSystemAPI calls.
+--------------------------------------------------------------
+Compilation: java *.java
+--------------------------------------------------------------
+Run: 
+java FileServer <port>
+//port is optional, default to 10044
+
+java FileSystemTest <host> <port>
+//host and port are optional, default to "127.0.0.1" and 10044
+
+java ReadTest
+--------------------------------------------------------------
+
+
+RESULTS-
+
+File system without cache, Total 20 rounds, Average turnaround time: 51 ms
+	       with cache, Total 20 rounds, Average turnaround time: 18 ms
+
+Adding caching to the client file system decreased the average turnaround time drastically. 
+The cached file system would take around 18ms to read the file into the cache after which its 
+contents could be accessed in the form of a byte array in O(1) time thanks 
+to the file lookup table.
