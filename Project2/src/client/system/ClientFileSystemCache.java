@@ -132,8 +132,7 @@ public class ClientFileSystemCache implements FileSystemAPI {
    * check if file is cached, if not cache it
    * write data to cache at pointer
    */
-  public boolean write(FileHandle fh, byte[] data)
-  throws java.io.IOException {
+  public boolean write(FileHandle fh, byte[] data) throws java.io.IOException {
     if (fileTbl.get(fh).readDataLength() == 0) {
       // Send a 2 to lookup file and get size and last modified
       String req = "2" + fh.url;
@@ -153,25 +152,6 @@ public class ClientFileSystemCache implements FileSystemAPI {
     // write data to buffer
     fileTbl.get(fh).writeToBuffer(data, fh.getPointer());
     fh.incrementPointer(data.length);
-    // write data to cached file at offset in fh.pointer
-    // int xIndex = 0;
-    // int yIndex = 0;
-    // byte[] cachedData = fileTbl.remove(fh);
-
-    // byte[] newCachedData = new byte[cachedData.length + data.length];
-    // System.out.println("write at pointer: " + fh.getPointer() + " new length: " + 
-    //     newCachedData.length + " data length: " + data.length);
-    // for (int i = 0; i < newCachedData.length; i++) {
-    //   if (i >= fh.getPointer() && xIndex < data.length) {
-    //     newCachedData[i] = data[xIndex++];
-    //   } else {
-    //     newCachedData[i] = cachedData[yIndex++];
-    //   }
-    // }
-    // increment pointer by length of data written      
-    // fh.incrementPointer(data.length);
-    // fileTbl.put(fh, newCachedData);
-    // System.out.println("Wrote to cache new length: " + newCachedData.length);
     
     hasWritten = true;
     return true;
@@ -180,52 +160,40 @@ public class ClientFileSystemCache implements FileSystemAPI {
   /**
    * read data.length amount of bytes from fh on server system
    */
-  public int read(FileHandle fh, byte[] data)
-  throws java.io.IOException {
+  public int read(FileHandle fh, byte[] data) throws java.io.IOException {
     // Send a 2 to lookup file and get size and last modified
     String req = "2" + fh.url;
     String[] res = sendTCP(req);
 
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
     long currentTime = timestamp.getTime();
+    
     // If cache is stale or fh has no cached data
     if (Long.parseLong(res[2]) > currentTime || fileTbl.get(fh).readDataLength() == 0) {
       int size = Integer.parseInt(res[1]);
-      // Loop to 
-      // if (size > READSIZE) {
-        int readBytes = 0;
-        byte[] recvedData = new byte[size];
-        while (readBytes < size) {
-          int bytesToRead = (readBytes + READSIZE > size ? size - readBytes : READSIZE);
-          // Send a 1 to read all bytes of file to store in the cache
-          // results of writes are stored in 2 param of response
-          req = "1" + fh.url + "&" + fh.getPointer() + "&" + bytesToRead;
-          String[] response = sendTCP(req);
-          byte[] respData = response[2].getBytes();
-          readBytes += respData.length;
-          int respI = 0;
-          for (int i = fh.getPointer(); i < fh.getPointer() + respData.length; i++) {
-            recvedData[i] = respData[respI++];
-          }
-          fh.incrementPointer(respData.length);
+      int readBytes = 0;
+      byte[] recvedData = new byte[size];
+      while (readBytes < size) {
+        int bytesToRead = (readBytes + READSIZE > size ? size - readBytes : READSIZE);
+        // Send a 1 to read all bytes of file to store in the cache
+        // results of writes are stored in 2 param of response
+        req = "1" + fh.url + "&" + fh.getPointer() + "&" + bytesToRead;
+        String[] response = sendTCP(req);
+        byte[] respData = response[2].getBytes();
+        readBytes += respData.length;
+        int respI = 0;
+        for (int i = fh.getPointer(); i < fh.getPointer() + respData.length; i++) {
+          recvedData[i] = respData[respI++];
         }
-        fh.resetPointer();
-        fileTbl.get(fh).setReadData(recvedData);
-        // fileTbl.put(fh, recvedData);
-      // }
-      // else {
-      //   // Send a 1 to read all bytes of file to store in the cache
-      //   // results of writes are stored in 2 param of response
-      //   req = "1" + fh.url + "&" + 0 + "&" + size;
-      //   String[] response = sendTCP(req);
-      //   byte[] responseData = response[2].getBytes();
+        fh.incrementPointer(respData.length);
+      }
+      fh.resetPointer();
+      fileTbl.get(fh).setReadData(recvedData);
 
-      //   fileTbl.put(fh, responseData);
-      // }
       fh.readToCache = true;
       // System.out.printf("put: %d bytes in fh: %d\n", responseData.length, fh.index);
     }
-    // save read bytes in data from cached data
+    // save read bytes from cache
     byte[] cachedData = fileTbl.get(fh).getReadData();
     int dataIndex = 0;
     for (int i = fh.getPointer(); i < cachedData.length && dataIndex < data.length; i++) {
@@ -242,8 +210,7 @@ public class ClientFileSystemCache implements FileSystemAPI {
    * if byte array is larger than max socket send length 
    * max send size is sent until all bytes have been sent
    **/ 
-  public boolean close(FileHandle fh) 
-  throws java.io.IOException {
+  public boolean close(FileHandle fh) throws java.io.IOException {
     if (hasWritten) {
       // get file data in byte array
       ArrayList<BufferedData> fileContents = fileTbl.get(fh).getBuffer();
@@ -253,28 +220,8 @@ public class ClientFileSystemCache implements FileSystemAPI {
         String req = "4" + fh.url + "&" + write.offset + "&" + new String(write.data);
         sendTCP(req);
       }
-      //65508
-      // if (size > 65508) {
-      //   int writtenBytes = 0;
-      //   while (writtenBytes < size) {
-      //     int bytesToWrite = (writtenBytes + 16384 > size ? size - writtenBytes : 16384);
-      //     int offset = (writtenBytes == 0 ? -1 : writtenBytes);
-      //     // System.out.println("writtenBytes: " + writtenBytes + " bytestowrite: " + bytesToWrite + " offset: " + offset);
-
-      //     // Send a 4 to write bytes starting at offset writtenBytes
-      //     String req = "4" + fh.url + "&" + offset + "&" 
-      //       + new String(Arrays.copyOfRange(fileContents, writtenBytes, writtenBytes + bytesToWrite));
-      //     writtenBytes = bytesToWrite + offset;
-      //     sendTCP(req);
-      //     // System.out.printf("wrote: %d to server\n", writtenBytes + bytesToWrite);
-      //   }
-      // } else {
-      //   // byte array is smaller than max send size send all starting at offset 0
-      //   String req = "4" + fh.url + "&" + -1 + "&" + new String(fileTbl.get(fh));
-      //   sendTCP(req);
-      //   System.out.printf("wrote: %d to server\n", fileTbl.get(fh).length);
-      // }
     }
+
     fileTbl.remove(fh);
     fh.discard();
     return true;
@@ -284,15 +231,14 @@ public class ClientFileSystemCache implements FileSystemAPI {
    * returns true if fh pointer is greater than or equal to 
    * length of cached data
    */
-  public boolean isEOF(FileHandle fh)
-  throws java.io.IOException {
-      //
-      byte[] cachedData = fileTbl.get(fh).getReadData();
-      if (cachedData.length != 0) {
-        return fh.getPointer() >= cachedData.length;
-      } else {
-        return true;
-      }
+  public boolean isEOF(FileHandle fh) throws java.io.IOException {
+    //
+    byte[] cachedData = fileTbl.get(fh).getReadData();
+    if (cachedData.length != 0) {
+      return fh.getPointer() >= cachedData.length;
+    } else {
+      return true;
+    }
   }
 }
     

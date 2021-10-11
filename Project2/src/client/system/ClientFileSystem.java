@@ -24,10 +24,6 @@ public class ClientFileSystem implements FileSystemAPI {
       this.address = address;
       this.port = port;
     }
-  
-    // public static void main(String args[]) { 
-    //     fileSystem server = new fileSystem("127.0.0.1", 10044); 
-    // }
 
     /**
      * @params

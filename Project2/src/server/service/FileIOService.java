@@ -35,7 +35,7 @@ public class FileIOService {
 
   // lookup file from url, send "1&<size>&<lastmodified> if file exists else send "-1"
   public static String lookUp(Request request) {
-    File tempFile = new File(request.fileName);
+    File tempFile = new File(RESOURCE_DIR + request.fileName);
     String responseMsg = ResponseFactory.createLookupFileResponse(tempFile.exists(), tempFile.lastModified(), tempFile.length());
     
     return responseMsg;
@@ -43,7 +43,7 @@ public class FileIOService {
 
   // getAttr takes filename and responds with lastmodified to client
   public static String getAttr(Request request) {
-    File tempFile = new File(request.fileName);
+    File tempFile = new File(RESOURCE_DIR + request.fileName);
 
     String responseMsg = ResponseFactory.createLastModifiedResponse(tempFile.lastModified());
 

@@ -1,7 +1,5 @@
 package test;
 /* standard java classes. */
-import java.io.*;
-import java.net.Socket;
 import java.util.*;
 
 import src.client.system.ClientFileSystem;
