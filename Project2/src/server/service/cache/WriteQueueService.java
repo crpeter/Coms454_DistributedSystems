@@ -1,4 +1,4 @@
-package src.server.service;
+package src.server.service.cache;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
@@ -15,7 +15,6 @@ public class WriteQueueService {
 
   public synchronized void addWriteRequestListFor(WriteRequest writeRequest) {
     String fileName = writeRequest.fileName;
-    
     if (writeRequestMap.get(fileName) == null) {
       List<WriteRequest> requestList = new ArrayList<>();
       requestList.add(writeRequest);
@@ -24,4 +23,9 @@ public class WriteQueueService {
       writeRequestMap.get(fileName).add(writeRequest);
     }
   }
+
+  // todo - implement
+  // private synchronized List<WriteRequest> getWriteRequests() {
+    
+  // }
 }

@@ -1,4 +1,4 @@
-package src.server.service;
+package src.server.service.io;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -7,7 +7,7 @@ import src.server.factory.ResponseFactory;
 import src.server.model.request.Request;
 import src.server.model.request.ReadRequest;
 
-public class FileIOService {
+public class FileReadService {
 
   private static final String RESOURCE_DIR = "/Users/petercody/Documents/Projects/DistributedSystemsProjects/Project2/src/server/resources/";
 

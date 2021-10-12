@@ -3,8 +3,8 @@ package src.server.worker;
 import java.io.*;
 import java.net.*;
 
-import src.server.service.FileRequestService;
-import src.server.service.WriteQueueService;
+import src.server.service.cache.WriteQueueService;
+import src.server.service.io.FileRequestService;
 
 // Connection runner class
 public class Connection extends Thread {

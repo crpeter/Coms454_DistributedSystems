@@ -1,7 +1,7 @@
 package test;
 
 import src.server.model.request.WriteRequest;
-import src.server.service.WriteQueueService;
+import src.server.service.cache.WriteQueueService;
 
 public class WriteQueueServiceTest {
 

@@ -1,4 +1,4 @@
-package src.server.service;
+package src.server.service.io;
 
 import java.io.IOException;
 
@@ -6,6 +6,8 @@ import src.server.factory.RequestFactory;
 import src.server.model.request.ReadRequest;
 import src.server.model.request.Request;
 import src.server.model.request.WriteRequest;
+import src.server.service.FileWriteService;
+import src.server.service.cache.WriteQueueService;
 
 public class FileRequestService {
 
@@ -21,13 +23,13 @@ public class FileRequestService {
         response = FileWriteService.write((WriteRequest) request);
         break;
       case READ:
-        response = FileIOService.read((ReadRequest) request);
+        response = FileReadService.read((ReadRequest) request);
         break;
       case LOOKUP:
-        response = FileIOService.lookUp(request);
+        response = FileReadService.lookUp(request);
         break;
       case GET_ATTRIBUTE:
-        response = FileIOService.getAttr(request);
+        response = FileReadService.getAttr(request);
         break;
       default:
         response = "Unrecognized function";

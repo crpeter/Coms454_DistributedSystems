@@ -3,7 +3,7 @@ package src.server;
 import java.net.*;
 import java.io.*;
 
-import src.server.service.WriteQueueService;
+import src.server.service.cache.WriteQueueService;
 import src.server.worker.Connection;
 
 public class FileServer { 
@@ -30,7 +30,7 @@ public class FileServer {
           Socket clientSocket = server.accept();
           Connection c = new Connection(clientSocket, writeQueueService);
           
-        } 
+        }
       } 
       catch(IOException i) { 
         System.out.println(i); 
